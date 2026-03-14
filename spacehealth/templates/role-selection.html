@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orbit - Role Selection</title>
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/role-selection.css">
+</head>
+<body>
+  <div class="stars" id="stars"></div>
+  
+  <div class="container">
+    <main class="main-content">
+      <h1 class="title">Who are you?</h1>
+      
+      <div class="buttons-container">
+        <button onclick="navigateToLogin('astronaut')" class="orbit-button astronaut">
+          Astronaut
+        </button>
+        <button onclick="navigateToLogin('admin')" class="orbit-button admin">
+          Admin
+        </button>
+      </div>
+
+      <p class="form-link">
+        Don’t have an account? 
+        <button onclick="navigateToRegister('astronaut')" class="orbit-button">Register</button>
+      </p>
+    </main>
+  </div>
+
+  <script src="../js/main.js"></script>
+  <script src="../js/navigation.js"></script>
+</body>
+</html>

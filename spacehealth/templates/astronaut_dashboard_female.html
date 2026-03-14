@@ -1,0 +1,162 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>ORBIT — Astronaut Dashboard (Female)</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'images/favicon.png' %}" type="image/png">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<header class="orbit-header">
+    <div class="orbit-header-inner">
+        <!-- Logo -->
+        <a href="{% url 'home' %}" class="orbit-logo">
+            <img src="{% static 'images/logo.png' %}" alt="ORBIT Logo" width="110" class="logo-anim">
+        </a>
+        <h1>🌙 ORBIT — Astronaut Dashboard (Female)</h1>
+    </div>
+</header>
+
+<main class="orbit-main">
+    <!-- Start Session -->
+    <section class="card">
+        <h2>Start Session</h2>
+        <button id="startSessionBtn" class="btn primary glow-btn">Start New Session</button>
+        <p id="sessionStatus" class="muted"></p>
+    </section>
+
+    <!-- Vitals -->
+    <section class="card">
+        <h2>Vitals — Live Input</h2>
+        <form id="vitalsForm" class="form-grid">
+            <input type="hidden" id="vitalsSessionId">
+            <label>Heart Rate (bpm)
+                <input type="number" id="heartRate" required>
+            </label>
+            <label>Oxygen Saturation (%)
+                <input type="number" id="oxygenSaturation" required>
+            </label>
+            <label>Blood Pressure (mmHg)
+                <input type="number" id="bloodPressure" required>
+            </label>
+            <label>Temperature (°C)
+                <input type="number" id="temperature" required>
+            </label>
+            <label>Respiration Rate (breaths/min)
+                <input type="number" id="respirationRate">
+            </label>
+            <label>Core Temperature (°C)
+                <input type="number" id="coreTemperature">
+            </label>
+            <label>Skin Temperature (°C)
+                <input type="number" id="skinTemperature">
+            </label>
+
+            <div style="grid-column: 1 / -1;">
+                <button type="submit" class="btn accent glow-btn">Submit Vitals</button>
+            </div>
+        </form>
+
+        <div id="vitalsStatus" class="muted"></div>
+        <div id="alerts" class="alert-area"></div>
+
+        <!-- Vitals Chart -->
+        <canvas id="vitalsChart" height="160"></canvas>
+    </section>
+
+    <!-- Female-specific health -->
+    <section class="card">
+        <h2>Female Health Tracking</h2>
+        <form id="femaleHealthForm" class="form-grid">
+            <label>Menstrual Cycle Day
+                <input type="number" id="cycleDay" min="0" max="40" placeholder="0 if not applicable">
+            </label>
+            <label>Mood Today
+                <select id="mood">
+                    <option value="good">😊 Good</option>
+                    <option value="neutral">😐 Neutral</option>
+                    <option value="low">😞 Low</option>
+                </select>
+            </label>
+            <label>
+                Post-pregnancy recovery (check if applicable)
+                <input type="checkbox" id="postPreg">
+            </label>
+            <label>Notes
+                <textarea id="femaleNotes" rows="3" placeholder="Optional notes..."></textarea>
+            </label>
+            <div style="grid-column:1 / -1;">
+                <button id="femaleSubmitBtn" class="btn glow-btn">Submit Female Health</button>
+            </div>
+        </form>
+        <div id="femaleHealthStatus" class="muted"></div>
+
+        <!-- Female Health Chart -->
+        <canvas id="femaleChart" height="160"></canvas>
+    </section>
+
+    <!-- Radiation -->
+    <section class="card">
+        <h2>Radiation</h2>
+        <form id="radiationForm" class="form-grid">
+            <input type="hidden" id="radiationSessionId">
+            <label>Dose Rate (mSv/h)
+                <input type="number" id="doseRate" required>
+            </label>
+            <label>Cumulative Dose (mSv)
+                <input type="number" id="cumulativeDose" required>
+            </label>
+            <label>Exposure Duration (h)
+                <input type="number" id="exposureDuration" required>
+            </label>
+            <label>Event Type
+                <select id="eventType"><option>Cosmic Rays</option><option>Solar Flare</option><option>Unknown</option></select>
+            </label>
+            <label>Alert Level
+                <select id="alertLevel"><option>Green</option><option>Yellow</option><option>Red</option></select>
+            </label>
+            <div style="grid-column:1 / -1;">
+                <button type="submit" class="btn accent glow-btn">Submit Radiation</button>
+            </div>
+        </form>
+        <div id="radiationStatus" class="muted"></div>
+
+        <!-- Radiation Chart -->
+        <canvas id="radiationChart" height="160"></canvas>
+    </section>
+
+    <!-- Chatbot -->
+    <section class="card">
+        <h2>AI Doctor / Psychiatrist (AstroBuddy)</h2>
+        <div id="chat-section">
+            <textarea id="chatInput" placeholder="Talk to your AI doctor..." rows="3"></textarea>
+            <div class="chat-actions">
+                <button id="chatBtn" class="btn glow-btn">Send</button>
+                <button id="guidedBreathBtn" class="btn secondary">Start Guided Breath</button>
+            </div>
+            <div id="chatOutput" class="chat-output"></div>
+        </div>
+    </section>
+
+    <!-- Previous Sessions -->
+    <section class="card">
+        <h2>Previous Sessions</h2>
+        <button id="loadSessionsBtn" class="btn">Load My Sessions</button>
+        <ul id="sessionsList" class="sessions-list"></ul>
+    </section>
+</main>
+
+<!-- Popups & beep -->
+<div id="popup" class="popup">⚠️ Warning sent to Mission Control</div>
+<audio id="beep" src="{% static 'audio/beep.mp3' %}" preload="auto"></audio>
+
+<!-- JS -->
+<script src="{% static 'js/astronaut_dashboard_female.js' %}"></script>
+</body>
+</html>

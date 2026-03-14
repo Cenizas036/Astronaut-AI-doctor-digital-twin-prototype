@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ORBIT{% endblock %}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{% static 'images/icon.png' %}">
+
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="{% static 'main.css' %}">
+
+    <style>
+        /* ORBIT Global Styles */
+        body {
+            margin: 0;
+            font-family: "Arial", sans-serif;
+            background: linear-gradient(135deg, #0c0c1e 0%, #1a1a2e 50%, #16213e 100%);
+            color: white;
+        }
+
+        .orbit-header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 2px solid #ff6b6b;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .orbit-logo img {
+            height: 50px;
+            transition: transform 0.3s ease;
+        }
+
+        .orbit-logo img:hover {
+            transform: scale(1.1);
+        }
+
+        main {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with logo -->
+    <header class="orbit-header">
+        <a href="{% url 'home' %}" class="orbit-logo">
+            <img src="{% static 'images/logo.png' %}" alt="ORBIT Logo">
+        </a>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

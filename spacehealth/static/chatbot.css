@@ -1,0 +1,60 @@
+/* chatbot.css */
+#chat-section {
+    border: 1px solid #ccc;
+    padding: 1rem;
+    max-width: 600px;
+    margin-top: 20px;
+    background: #111;
+    color: #eee;
+    border-radius: 10px;
+}
+
+#chatInput {
+    width: 80%;
+    height: 50px;
+    padding: 8px;
+}
+
+#chatBtn {
+    padding: 10px 15px;
+    margin-left: 5px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#chatOutput {
+    margin-top: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* ✅ Female AI avatar */
+#ai-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: url('/static/avatar_female.png') center/cover no-repeat;
+    margin: 20px auto;
+    border: 3px solid #4CAF50;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
+    transition: transform 0.2s ease-in-out;
+}
+
+/* ✅ Animate when speaking */
+#ai-avatar.speaking {
+    animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+    from {
+        transform: scale(1);
+        box-shadow: 0 0 10px rgba(255, 100, 150, 0.8);
+    }
+    to {
+        transform: scale(1.1);
+        box-shadow: 0 0 25px rgba(255, 100, 150, 1);
+    }
+}

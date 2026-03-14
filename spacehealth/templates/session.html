@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Astronaut Session</title>
+  <link rel="stylesheet" href="/static/chatbot.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0b0f19;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    /* ✅ Avatar placeholder */
+    #avatar {
+      margin: 20px auto;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #ff69b4, #b30059);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 80px;
+      color: white;
+      animation: breathe 3s infinite alternate;
+      box-shadow: 0 0 20px rgba(255, 105, 180, 0.6);
+    }
+
+    /* Breathing idle animation */
+    @keyframes breathe {
+      from { transform: scale(1); }
+      to { transform: scale(1.05); }
+    }
+
+    /* Speaking animation (glowing + pulsing faster) */
+    .speaking {
+      animation: speakPulse 0.5s infinite alternate;
+    }
+
+    @keyframes speakPulse {
+      from { transform: scale(1); box-shadow: 0 0 20px rgba(255, 200, 200, 0.6); }
+      to { transform: scale(1.1); box-shadow: 0 0 40px rgba(255, 100, 150, 1); }
+    }
+
+    #chatOutput {
+      max-height: 300px;
+      overflow-y: auto;
+      border: 1px solid #444;
+      padding: 10px;
+      margin-top: 10px;
+      background: #111;
+      text-align: left;
+    }
+
+    button {
+      background: teal;
+      color: white;
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:disabled {
+      background: gray;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <h1>🩺 AI Doctor / Psychiatrist Session</h1>
+
+  <!-- ✅ Avatar -->
+  <div id="avatar">👩‍⚕️</div>
+
+  <!-- Controls -->
+  <div>
+    <button id="micBtn">🎙️ Start Talking</button>
+    <button id="stopMicBtn" disabled>🛑 Stop</button>
+  </div>
+
+  <!-- Chat log -->
+  <div id="chatOutput"></div>
+
+  <script>
+    let ws;
+    let sessionId = null;
+    const avatar = document.getElementById("avatar");
+
+    function connectWS() {
+      ws = new WebSocket("ws://127.0.0.1:2700"); // Vosk server
+      ws.onopen = () => console.log("🎙️ Connected to Vosk server");
+      ws.onmessage = async (event) => {
+        const msg = JSON.parse(event.data);
+        if (msg.text) {
+          sendToChatbot(msg.text);
+        }
+      };
+    }
+
+    async function sendToChatbot(userMessage) {
+      if (!sessionId) {
+        alert("No session ID found.");
+        return;
+      }
+      const res = await fetch("/api/chat/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sessionId, message: userMessage }),
+      });
+      const data = await res.json();
+
+      document.getElementById("chatOutput").innerHTML += `<p><b>You:</b> ${userMessage}</p>`;
+      document.getElementById("chatOutput").innerHTML += `<p><b>AI:</b> ${data.response}</p>`;
+
+      if (data.audio_url) {
+        const audio = new Audio(data.audio_url);
+
+        // ✅ Avatar "speaks" when audio plays
+        audio.onplay = () => avatar.classList.add("speaking");
+        audio.onended = () => avatar.classList.remove("speaking");
+
+        audio.play();
+      }
+    }
+
+    document.getElementById("micBtn").addEventListener("click", () => {
+      connectWS();
+      document.getElementById("micBtn").disabled = true;
+      document.getElementById("stopMicBtn").disabled = false;
+    });
+
+    document.getElementById("stopMicBtn").addEventListener("click", () => {
+      if (ws) ws.close();
+      document.getElementById("micBtn").disabled = false;
+      document.getElementById("stopMicBtn").disabled = true;
+    });
+
+    async function getActiveSession() {
+      const res = await fetch("/api/sessions/mine/");
+      const data = await res.json();
+      if (data.sessions.length > 0) {
+        sessionId = data.sessions[0].id;
+      }
+    }
+
+    getActiveSession();
+  </script>
+</body>
+</html>

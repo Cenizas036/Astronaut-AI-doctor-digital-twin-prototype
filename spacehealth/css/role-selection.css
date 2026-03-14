@@ -1,0 +1,50 @@
+/* Role selection page specific styles */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+  justify-content: center;
+  min-height: 80vh;
+}
+
+.buttons-container {
+  display: flex;
+  gap: 3rem;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Enhanced button styles for role selection */
+.orbit-button {
+  min-width: 300px;
+  padding: 2rem 3rem;
+  font-size: 1.5rem;
+  transition: all 0.4s ease;
+}
+
+.orbit-button:hover {
+  transform: translateY(-8px) scale(1.05);
+}
+
+/* Responsive Design for Role Selection */
+@media (max-width: 768px) {
+  .buttons-container {
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .orbit-button {
+    min-width: 250px;
+    padding: 1.5rem 2rem;
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .orbit-button {
+    min-width: 200px;
+    padding: 1.2rem 1.5rem;
+    font-size: 1.1rem;
+  }
+}

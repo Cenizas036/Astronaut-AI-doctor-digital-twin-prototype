@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Astronaut Health Dashboard</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <h1>🚀 Astronaut Digital Twin Doctor</h1>
+
+  <!-- Chatbot UI -->
+  <div id="chat-section">
+    <textarea id="chatInput" placeholder="Talk to your AI doctor/psychiatrist..."></textarea>
+    <button id="chatBtn">Send</button>
+    <div id="chatOutput"></div>
+  </div>
+
+  <script src="{% static 'js/chat.js' %}"></script>
+</body>
+</html>

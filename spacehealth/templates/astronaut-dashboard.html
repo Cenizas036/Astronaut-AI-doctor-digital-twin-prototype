@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Astronaut Dashboard</title>
+    <link rel="stylesheet" href="/static/dashboard.css">
+    <link rel="stylesheet" href="/static/chatbot.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0c0c1e, #1a1a2e, #16213e);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(0, 212, 255, 0.1);
+            border-bottom: 2px solid #00d4ff;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #00d4ff;
+        }
+
+        section {
+            margin: 2rem auto;
+            padding: 2rem;
+            max-width: 700px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.2);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        h2 {
+            color: #ff6b6b;
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        input, select, textarea {
+            padding: 0.8rem;
+            width: 100%;
+            margin-top: 0.3rem;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        button {
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            background: #00d4ff;
+            color: #0c0c1e;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #7c3aed;
+            color: white;
+        }
+
+        #alerts {
+            margin-top: 1rem;
+            font-weight: bold;
+            color: red;
+            text-shadow: 0 0 10px red;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* Popup */
+        #popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: red;
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            display: none;
+            box-shadow: 0 0 20px rgba(255,0,0,0.8);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🚀 Astronaut Dashboard</h1>
+    </header>
+
+    <main>
+        <!-- Start Session -->
+        <section>
+            <h2>Start Session</h2>
+            <button id="startSessionBtn">Start New Session</button>
+            <p id="sessionStatus"></p>
+        </section>
+
+        <!-- Vitals -->
+        <section>
+            <h2>Submit Vitals</h2>
+            <form id="vitalsForm">
+                <input type="hidden" id="vitalsSessionId">
+                <label>Heart Rate (bpm): <input type="number" id="heartRate" required></label>
+                <label>Oxygen Saturation (%): <input type="number" id="oxygenSaturation" required></label>
+                <label>Blood Pressure (mmHg): <input type="number" id="bloodPressure" required></label>
+                <label>Temperature (°C): <input type="number" id="temperature" required></label>
+                <label>Respiration Rate (breaths/min): <input type="number" id="respirationRate"></label>
+                <label>Core Temperature (°C): <input type="number" id="coreTemperature"></label>
+                <label>Skin Temperature (°C): <input type="number" id="skinTemperature"></label>
+                <button type="submit">Submit Vitals</button>
+            </form>
+            <p id="vitalsStatus"></p>
+            <div id="alerts"></div>
+        </section>
+
+        <!-- Radiation -->
+        <section>
+            <h2>Submit Radiation Data</h2>
+            <form id="radiationForm">
+                <input type="hidden" id="radiationSessionId">
+                <label>Dose Rate (mSv/h): <input type="number" id="doseRate" required></label>
+                <label>Cumulative Dose (mSv): <input type="number" id="cumulativeDose" required></label>
+                <label>Exposure Duration (h): <input type="number" id="exposureDuration" required></label>
+                <label>Event Type:
+                    <select id="eventType">
+                        <option value="Cosmic Rays">Cosmic Rays</option>
+                        <option value="Solar Flare">Solar Flare</option>
+                        <option value="Unknown">Unknown</option>
+                    </select>
+                </label>
+                <label>Alert Level:
+                    <select id="alertLevel">
+                        <option value="Green">Green</option>
+                        <option value="Yellow">Yellow</option>
+                        <option value="Red">Red</option>
+                    </select>
+                </label>
+                <button type="submit">Submit Radiation</button>
+            </form>
+            <p id="radiationStatus"></p>
+        </section>
+
+        <!-- Chatbot -->
+        <section>
+            <h2>AI Doctor / Psychiatrist</h2>
+            <div id="chat-section">
+                <textarea id="chatInput" placeholder="Talk to your AI doctor..."></textarea>
+                <button id="chatBtn">Send</button>
+                <div id="chatOutput"></div>
+            </div>
+        </section>
+
+        <!-- Previous Sessions -->
+        <section>
+            <h2>Previous Sessions</h2>
+            <button id="loadSessionsBtn">Load My Sessions</button>
+            <ul id="sessionsList"></ul>
+        </section>
+    </main>
+
+    <!-- Popup -->
+    <div id="popup">⚠️ Warning sent to Space Station!</div>
+
+    <!-- Beep sound -->
+    <audio id="beep" src="/static/beep.mp3" preload="auto"></audio>
+
+    <script>
+        let currentSessionId = null;
+
+        function narrate(text) {
+            if ("speechSynthesis" in window) {
+                const voices = speechSynthesis.getVoices();
+                const femaleVoice = voices.find(v =>
+                    v.name.toLowerCase().includes("female") ||
+                    v.name.toLowerCase().includes("samantha") ||
+                    v.name.toLowerCase().includes("zira")
+                ) || voices[0];
+                const speech = new SpeechSynthesisUtterance(text);
+                speech.pitch = 1;
+                speech.rate = 1;
+                speech.volume = 1;
+                speech.voice = femaleVoice;
+                speechSynthesis.speak(speech);
+            }
+        }
+
+        function triggerAlert(messages) {
+            const beep = document.getElementById("beep");
+            beep.play();
+            document.getElementById("alerts").innerText = messages.join("\n");
+            narrate("Warning! " + messages.join(". "));
+            const popup = document.getElementById("popup");
+            popup.style.display = "block";
+            setTimeout(() => popup.style.display = "none", 4000);
+        }
+
+        // Start session
+        document.getElementById("startSessionBtn").addEventListener("click", async () => {
+            const res = await fetch("/session/start/");
+            const data = await res.json();
+            currentSessionId = data.session_id;
+            document.getElementById("sessionStatus").innerText = data.message + " (ID: " + currentSessionId + ")";
+            document.getElementById("vitalsSessionId").value = currentSessionId;
+            document.getElementById("radiationSessionId").value = currentSessionId;
+            narrate("New session started. ID " + currentSessionId + ". All systems are green.");
+        });
+
+        // Submit vitals
+        document.getElementById("vitalsForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const payload = {
+                session_id: currentSessionId,
+                heart_rate: parseFloat(document.getElementById("heartRate").value),
+                oxygen_saturation: parseFloat(document.getElementById("oxygenSaturation").value),
+                blood_pressure: parseFloat(document.getElementById("bloodPressure").value),
+                temperature: parseFloat(document.getElementById("temperature").value),
+                respiration_rate: parseFloat(document.getElementById("respirationRate").value) || null,
+                core_temperature: parseFloat(document.getElementById("coreTemperature").value) || null,
+                skin_temperature: parseFloat(document.getElementById("skinTemperature").value) || null,
+            };
+            const res = await fetch("/vitals/submit/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            document.getElementById("vitalsStatus").innerText = data.message || data.error;
+
+            if (data.alerts && data.alerts.length > 0) {
+                triggerAlert(data.alerts);
+            } else {
+                narrate("Vitals look stable. Heart rate " + payload.heart_rate + ", oxygen " + payload.oxygen_saturation + "%.");
+            }
+        });
+
+        // Submit radiation
+        document.getElementById("radiationForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const payload = {
+                session_id: currentSessionId,
+                dose_rate: parseFloat(document.getElementById("doseRate").value),
+                cumulative_dose: parseFloat(document.getElementById("cumulativeDose").value),
+                exposure_duration: parseFloat(document.getElementById("exposureDuration").value),
+                event_type: document.getElementById("eventType").value,
+                alert_level: document.getElementById("alertLevel").value,
+            };
+            const res = await fetch("/radiation/submit/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json();
+            document.getElementById("radiationStatus").innerText = data.message || data.error;
+
+            if (data.alerts && data.alerts.length > 0) {
+                triggerAlert(data.alerts);
+            } else {
+                narrate("Radiation levels nominal. Dose rate " + payload.dose_rate + " millisieverts per hour.");
+            }
+        });
+
+        // Chatbot
+        document.getElementById("chatBtn").addEventListener("click", async () => {
+            const msg = document.getElementById("chatInput").value;
+            const res = await fetch("/chat/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ session_id: currentSessionId, message: msg }),
+            });
+            const data = await res.json();
+            document.getElementById("chatOutput").innerHTML += "<p><b>You:</b> " + msg + "</p>";
+            document.getElementById("chatOutput").innerHTML += "<p><b>AI:</b> " + data.response + "</p>";
+            document.getElementById("chatInput").value = "";
+            narrate("AI Doctor says: " + data.response);
+        });
+
+        // Previous sessions
+        document.getElementById("loadSessionsBtn").addEventListener("click", async () => {
+            const res = await fetch("/sessions/mine/");
+            const data = await res.json();
+            const list = document.getElementById("sessionsList");
+            list.innerHTML = "";
+            data.sessions.forEach(sess => {
+                const li = document.createElement("li");
+                li.textContent = "Session " + sess.id + " (Started: " + sess.started_at + ")";
+                list.appendChild(li);
+            });
+            narrate("Loaded " + data.sessions.length + " previous sessions.");
+        });
+    </script>
+</body>
+</html>
