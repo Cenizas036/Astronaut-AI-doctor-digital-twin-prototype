@@ -1,4 +1,4 @@
-# 🚀 Astronaut Digital Twin – AI Health Assistant
+# 🚀 Astronaut Digital Twin – AI Health Assistant (SIH 2025)
 
 ## Overview
 
